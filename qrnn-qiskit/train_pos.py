@@ -39,25 +39,31 @@ print(f"Vocabulary: {word_to_ix}")
 print(f"Entities: {ix_to_tag}")
 
 
-
 class POSTagger(nn.Module):
 
     def __init__(self, embedding_dim, hidden_dim, vocab_size, tagset_size, n_qubits=0, n_qlayers=1, backend='statevector_simulator'):
         super(POSTagger, self).__init__()
         self.hidden_dim = hidden_dim
-
+        print(embedding_dim)
+        print(vocab_size)
         self.word_embeddings = nn.Embedding(vocab_size, embedding_dim)
-
+        print(self.word_embeddings)
         # The LSTM takes word embeddings as inputs, and outputs hidden states
         # with dimensionality hidden_dim.
         if n_qubits > 0:
             print(f"Tagger will use Quantum LSTM running on backend {backend}")
+            print(embedding_dim)
+            print(hidden_dim)
+            print("===============================================")
             self.lstm = QLSTM(embedding_dim, hidden_dim, n_qubits=n_qubits, n_qlayers=n_qlayers, backend=backend)
         else:
             print("Tagger will use Classical LSTM")
+            print(embedding_dim)
+            print(hidden_dim)
             self.lstm = nn.LSTM(embedding_dim, hidden_dim)
 
         # The linear layer that maps from hidden state space to tag space
+        print(tagset_size)
         self.hidden2tag = nn.Linear(hidden_dim, tagset_size)
 
     def forward(self, sentence):
@@ -66,23 +72,26 @@ class POSTagger(nn.Module):
         tag_logits = self.hidden2tag(lstm_out.view(len(sentence), -1))
         tag_scores = F.log_softmax(tag_logits, dim=1)
         return tag_scores
-    
+
 
 if __name__ == '__main__':
     # These will usually be more like 32 or 64 dimensional.
     # We will keep them small, so we can see how the weights change as we train.
-    parser = argparse.ArgumentParser("QLSTM Example")
+    parser = argparse.ArgumentParser()
     parser.add_argument('-E', '--embedding_dim', default=8, type=int)
     parser.add_argument('-H', '--hidden_dim', default=6, type=int)
-    parser.add_argument('-Q', '--n_qubits', default=0, type=int)
-    parser.add_argument('-e', '--n_epochs', default=300, type=int)
+    parser.add_argument('-Q', '--n_qubits', default=4, type=int)
+    parser.add_argument('-e', '--n_epochs', default=1, type=int)
     parser.add_argument('-B', '--backend', default='statevector_simulator')
-    args = parser.parse_args()
-
+    args, unknown = parser.parse_known_args()
+    print(args)
+    print(unknown)
     print(f"Embedding dim:    {args.embedding_dim}")
     print(f"LSTM output size: {args.hidden_dim}")
     print(f"Number of qubits: {args.n_qubits}")
     print(f"Training epochs:  {args.n_epochs}")
+
+
 
     model = POSTagger(args.embedding_dim, 
                         args.hidden_dim, 
@@ -98,6 +107,7 @@ if __name__ == '__main__':
     history = {
         'loss': []
     }
+
     for epoch in range(args.n_epochs):
         losses = []
         for sentence, tags in training_data:
@@ -109,10 +119,10 @@ if __name__ == '__main__':
             # Tensors of word indices.
             sentence_in = prepare_sequence(sentence, word_to_ix)
             targets = prepare_sequence(tags, tag_to_ix)
-
+            print(sentence_in)
             # Step 3. Run our forward pass.
             tag_scores = model(sentence_in)
-
+            print(tag_scores)
             # Step 4. Compute the loss, gradients, and update the parameters by
             #  calling optimizer.step()
             loss = loss_function(tag_scores, targets)
@@ -123,28 +133,31 @@ if __name__ == '__main__':
         history['loss'].append(avg_loss)
         print("Epoch {} / {}: Loss = {:.3f}".format(epoch+1, args.n_epochs, avg_loss))
 
-    # See what the scores are after training
-    with torch.no_grad():
-        input_sentence = training_data[0][0]
-        labels = training_data[0][1]
-        inputs = prepare_sequence(input_sentence, word_to_ix)
-        tag_scores = model(inputs)
+    # # See what the scores are after training
+    # with torch.no_grad():
+    #     input_sentence = training_data[0][0]
+    #     labels = training_data[0][1]
+    #     inputs = prepare_sequence(input_sentence, word_to_ix)
+    #     tag_scores = model(inputs)
 
-        tag_ids = torch.argmax(tag_scores, dim=1).numpy()
-        tag_labels = [ix_to_tag[k] for k in tag_ids]
-        print(f"Sentence:  {input_sentence}")
-        print(f"Labels:    {labels}")
-        print(f"Predicted: {tag_labels}")
+    #     tag_ids = torch.argmax(tag_scores, dim=1).numpy()
+    #     tag_labels = [ix_to_tag[k] for k in tag_ids]
+    #     print(f"Sentence:  {input_sentence}")
+    #     print(f"Labels:    {labels}")
+    #     print(f"Predicted: {tag_labels}")
     
-    lstm_choice = "classical" if args.n_qubits == 0 else "quantum"
+    # lstm_choice = "classical" if args.n_qubits == 0 else "quantum"
 
-    plt.figure(figsize=(6, 4))
-    plt.plot(history['loss'], label=f"{lstm_choice} LSTM")
-    plt.title("POS Tagger Training")
-    plt.ylabel("Loss")
-    plt.xlabel("Epoch")
-    plt.ylim(0., 1.5)
-    plt.legend(loc="upper right")
+    # plt.figure(figsize=(6, 4))
+    # plt.plot(history['loss'], label=f"{lstm_choice} LSTM")
+    # plt.title("POS Tagger Training")
+    # plt.ylabel("Loss")
+    # plt.xlabel("Epoch")
+    # plt.ylim(0., 1.5)
+    # plt.legend(loc="upper right")
 
-    plt.savefig(f"training_{lstm_choice}.png")
-    plt.show()
+    # plt.savefig(f"training_{lstm_choice}.png")
+    # plt.show()
+
+    
+
