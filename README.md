@@ -4,7 +4,7 @@
 
 **Mentor:** [Dr. Vesselin G. Gueorguiev](https://github.com/VGGatGitHub)
 
-**Mentees:** [Sai Harvin](https://www.linkedin.com/in/sai-harvin/), [Areli Yesareth Guerrero Estrada](https://www.linkedin.com/in/areli-yesareth-guerrero-estrada-7b077a158/)
+**Mentees:** [Sai Harvin Kusumaraju](https://www.linkedin.com/in/sai-harvin/), [Areli Yesareth Guerrero Estrada](https://www.linkedin.com/in/areli-yesareth-guerrero-estrada-7b077a158/)
 
 ## **Project Description:**
 
