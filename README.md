@@ -6,6 +6,9 @@
 
 **Mentees:** [Sai Harvin](https://www.linkedin.com/in/sai-harvin/), [Areli Yesareth Guerrero Estrada](https://www.linkedin.com/in/areli-yesareth-guerrero-estrada-7b077a158/)
 
+## **Project Description:**
+
+## **Requirements:**
 
 The Jupyter Notebook is written in `Python`, and the following packages are needed to run the code:  
 - `PennyLane`:  a cross-platform `Python` library for differentiable programming of quantum computers, which in this tutorial will be used to create quantum circuits and interface them with  
